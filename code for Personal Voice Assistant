@@ -1,0 +1,354 @@
+import pyttsx3 #pip install pyttsx3
+import speech_recognition as sr #pip install SpeechRecognition
+import datetime #inbuilt module in Python 
+import wikipedia #pip install wikipedia 
+import smtplib 
+import webbrowser as wb #inbuilt module in Python
+import psutil #pip install psutil
+import pyjokes #pip install pyjokes
+import os
+import pyautogui #pip install PyAutoGUI
+import random
+import json
+import requests #inbuilt module in Python
+from urllib.request import urlopen 
+import wolframalpha #pip install wolframaplha
+
+engine = pyttsx3.init()
+voices = engine.getProperty('voices')
+engine.setProperty('voice', voices[1].id)
+wolframalpha_app_id = 'X7UREK-JW2HUY2GRR'    #put here your unique wolframalpha id
+
+def speak(audio):
+    engine.say(audio)
+    engine.runAndWait()
+    
+def time_():
+    Time=datetime.datetime.now().strftime("%H:%M:%S") #for 24 hour clock
+    speak("The current time is")
+    speak(Time)
+    
+def date_():
+    year=datetime.datetime.now().year
+    month=datetime.datetime.now().month
+    date=datetime.datetime.now().date
+    speak("The current date is")
+    speak(date)
+    speak(month)
+    speak(year)
+    
+def wishme():
+    speak("Hello Ma'am!")
+    time_()
+    date_()
+    
+    #Some Gretings
+    hour = datetime.datetime.now().hour
+    if hour>=0 and hour<12:
+        speak("Good Morning Ma'am!")
+        print("Good Morning Ma'am!")
+        
+    elif hour>=12 and hour<18:
+        speak("Good Afternoon Ma'am!")
+        print("Good Afternoon Ma'am!")
+        
+    elif hour>=18 and hour<24:
+        speak("Good Evening Ma'am!")
+        print("Good Evening Ma'am!")
+        
+    speak("Spell at your service. Please tell me how can I help you today?")
+
+def TakeCommand():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listing...")
+        r.pause_threshold=1
+        audio = r.listen(source)
+        
+    try:
+        print("Recognizing...")
+        query = r.recognize_google(audio,language='en-us')
+        print(query)
+        
+    except Exception as e:
+        print(e)
+        print("Say that again please...")
+        return "None"
+    return query
+
+def sendEmail(to,content):
+    server = smtplib.SMTP('smtp.gmail.com',587)
+    server.ehlo()
+    server.starttls()
+    #for this function you must enable low security in your gmail which you are going to use as sender.
+    server.login('username@gmail.com','SmitaAbhi@1289')
+    server.sendermail('username@gmail.com',to,content)
+    server.close()
+    
+def screenshot():
+    img = pyautogui.screenshot()
+    screenshotpath = r'C:\Users\abhis\OneDrive\Pictures\Screenshots.png' #use path location here
+    img.save(screenshotpath)
+    speak("Done Ma'am!")
+    
+def cpu():
+    usage = str(psutil.cpu_percent())
+    speak('CPU is at'+usage)
+    print('CPU is at'+usage)
+    
+    battery = psutil.sensors_battery()
+    speak('Battery is at')
+    speak(battery.percent)
+    
+def joke():
+    print(pyjokes.get_joke())
+    speak(pyjokes.get_joke())
+
+#The Main function:
+#The main function starts from here,the commands given by the humans is stored in the variable statement.
+
+if __name__ == "__main__":
+    wishme()
+    while True:
+        query = TakeCommand().lower() #All Commands will be stored in lower case in query.
+        #for easy recognition.
+        
+        if 'time' in query: #tell us time when asked
+            time_()
+            
+        if 'date' in query: #tell us date when asked
+            date_()
+
+        elif "weather" in query:
+            api_key="f2abee602b135a275aed73d4b7f3292d"  #use here your unique id
+            base_url="https://api.openweathermap.org/data/2.5/weather?"
+            speak("what is the city name")
+            city_name=TakeCommand()
+            complete_url=base_url+"appid="+api_key+"&q="+city_name
+            response = requests.get(complete_url)
+            x=response.json()
+            if x["cod"]!="404":
+                y=x["main"]
+                current_temperature = y["temp"]
+                current_humidiy = y["humidity"]
+                z = x["weather"]
+                weather_description = z[0]["description"]
+                speak(" Temperature in kelvin unit is " +
+                      str(current_temperature) +
+                      "\n humidity in percentage is " +
+                      str(current_humidiy) +
+                      "\n description  " +
+                      str(weather_description))
+                print(" Temperature in kelvin unit = " +
+                      str(current_temperature) +
+                      "\n humidity (in percentage) = " +
+                      str(current_humidiy) +
+                      "\n description = " +
+                      str(weather_description))
+            
+        elif 'wikipedia' in query:
+            speak("Searching...")
+            query = query.replace('wikipedia',' ')
+            result = wikipedia.summary(query,sentences=10)
+            speak('According to Wikipedia')
+            print(result)
+            speak(result)
+            
+        elif 'send email' in query:
+            try:
+                speak("What should I say?")
+                content = TakeCommand()
+                #provide reciever email address
+                speak ("Who is the Reciever?")
+                reciever = input("Enter Reciever's Email:")
+                to = reciever
+                sendEmail(to,content)
+                speak(content)
+                speak('Email has been sent.')
+                
+            except Exception as e:
+                print(e)
+                speak("Sorry, I am unable to send Email.")
+            
+        elif 'open stackoverflow' in query:
+            wb.open("stackoverflow.com")
+
+        elif 'ask' in query:
+            speak('I can answer to computational and geographical questions and what question do you want to ask now')
+            question=TakeCommand()
+            app_id="X7UREK-JW2HUY2GRR"
+            client = wolframalpha.Client('X7UREK-JW2HUY2GRR')
+            res = client.query(question)
+            answer = next(res.results).text
+            print(answer)
+            speak(answer)
+
+        elif 'my class' in query:
+            speak("Opening...")
+            wb.open('https://myclass.lpu.in/')
+            
+        elif 'open WhatsAap' in query:
+            speak("Opening...")
+            wb.open('https://web.whatsapp.com/')
+            
+        elif 'Search in chrome' in query:
+            speak('What should I search?')
+            chromepath = 'C:\Program Files (x86)\Google\Chrome\Application.exe %s'
+            search = TakeCommand().lower()
+            wb.get(chromepath).open_new_tab(search+'.com')
+            
+        elif 'search youtube' in query:
+            speak('What shoul I search?')
+            search_Term = TakeCommand().lower()
+            speak("Here we go to YOUTUBE!")
+            wb.open('https://www.youtube.com/search?q='+search_Term)
+            
+        elif 'search google' in query:
+            speak('What shoul I search?')
+            search_Term = TakeCommand().lower()
+            speak("Searching...")
+            wb.open('https://www.google.com/search?q='+search_Term)
+            
+        elif 'cpu' in query:
+            cpu()
+            
+        elif 'joke' in query:
+            joke()
+            
+        elif 'go offline' in query:
+            speak("Going offline ma'am!")
+            quit()
+            
+        elif 'word' in query:
+            speak('Opening MS Word...')
+            ms_word = r'C:/Program Files/Microsoft Office/root/Office16/WINWORD.EXE'   #give here your location path
+            os.startfile(ms_word)
+            
+        elif 'write a note' in query:
+            speak("What should I write, Ma'am?")
+            notes = TakeCommand()
+            file = open('spellAI.txt','w')
+            speak("Ma'am should I include Date and Time?")
+            ans = TakeCommand()
+            if 'yes' in ans or 'sure' in ans:
+                strTime = datetime.datetime.now().strftime("%H:%M:%S")
+                file.write(strTime)
+                file.write(':-')
+                file.write(notes)
+                speak("Done Taking Notes, Ma'am!")
+            else:
+                file.write(notes)
+                
+        elif 'show note' in query:
+            speak('Showing notes')
+            file = open('spellAI.txt','r')
+            print(file.read())
+            speak(file.read())
+            
+        elif 'screenshot' in query:
+            screenshot()
+
+        elif 'who are you' in query or 'what can you do' in query:
+            print('''I am Spell. I am a personal assistant. I am programmed to perform minor tasks like opening youtube,google chrome,whatsaap,my class, gmail and stackoverflow . Predict time,search wikipedia,predict weather in different cities, i can play music, get top headline news and you can ask me computational or geographical questions too!''')
+
+            speak('''I am Spell. I am a personal assistant. I am programmed to perform minor tasks like opening youtube,google chrome,whatsaap, my class, gmail and stackoverflow . Predict time,search wikipedia,predict weather in different cities, i can play music, get top headline news and you can ask me computational or geographical questions too!''')
+
+
+        elif "who made you" in query or "who created you" in query or "who discovered you" in query:
+            print("I was built by Smita Bose")
+            speak("I was built by Smita Bose")
+
+        elif 'play music' in query:
+            print("which type of song you want to listen? Audio song or Video song Ma'am!")
+            speak("which type of song you want to listen? Audio song or Video song Ma'am!")
+
+        elif 'audio song' in query:
+            music_dir = 'C:\\Users\\abhis\\OneDrive\\Desktop\\songs'  #put here your location path
+            songs = os.listdir(music_dir)
+            print(songs)
+            no = random.randint(1,10)
+            os.startfile(os.path.join(music_dir,songs[no]))
+            
+        elif 'video song' in query:
+            songs_dir = r'C:\Users\abhis\Videos\Free YouTube Downloader'   #put here your location path
+            music = os.listdir(songs_dir)
+            speak('What should I play?')
+            speak('Select a number...')
+            ans = TakeCommand().lower()
+            while('number' not in ans and ans != 'random' and ans != 'you choose'):
+                speak('I could not understand you. Please Try Again!')
+                ans = TakeCommand().lower()
+            if 'number' in ans:
+                no = int(ans.replace('number',''))
+            elif 'random' or 'you choose' in ans:
+                no = random.randint(1,10)
+                
+            os.startfile(os.path.join(songs_dir,music[no]))
+            
+        elif 'remember that' in query:
+            speak("What should I remember?")
+            memory = TakeCommand()
+            speak("You asked me to remember that"+memory)
+            remember = open('memory.txt','w')
+            remember.write(memory)
+            remember.close()
+            
+        elif 'do you remember anything' in query:
+            remember = open('memory.txt','r')
+            print('You asked me to remember that'+remember.read())
+            speak('You asked me to remember that'+remember.read())
+            
+        elif 'news' in query:
+            try:
+                jsonObj = urlopen("http://newsapi.org/v2/top-headlines?country=in&category=general&apiKey=db044e694b09429e85f7c790229dc0af")
+                data = json.load(jsonObj)
+                i = 1
+                
+                speak('Here are some top headlines of the General News')
+                print('==========TOP HEADLINES=========='+'\n')
+                for item in data['articles']:
+                    print(str(i)+'. '+item['title']+'\n')
+                    print(item['description']+'\n')
+                    speak(item['title'])
+                    i += 1
+            except Exception as e:
+                print(str(e))
+                
+        elif 'where is' in query:
+            query = query.replace("where is","")
+            location = query
+            speak("user asked to locate"+location)
+            wb.open_new_tab("https://www.google.com/maps/place/"+location)
+            
+        elif 'calculate' in query:
+            client = wolframalpha.Client(wolframalpha_app_id)
+            index = query.lower().split().index('calculate')
+            query = query.split()[index+1:]
+            res = client.query(''.join(query))
+            answer = next(res.results).text
+            print('The Answer is:'+answer)
+            speak('The Answer is:'+answer)
+            
+        elif 'what is' in query or 'who is' in query:
+            client = wolframalpha.Client(wolframalpha_app_id)
+            res = client.query(query)
+            try:
+                print(next(res.results).text)
+                speak(next(res.results).text)
+            except StopIteration:
+                print("No Results")
+                
+        elif 'stop listening' in query:
+            speak("For how many second you want me to stop listening to your commands?")
+            ans = int(TakeCommand())
+            time.sleep(ans)
+            print(ans)
+            
+        elif 'log out' in query:
+            os.system("shutdown -1")
+            
+        elif 'restart' in query:
+            os.system("shutdown /r /t 1")
+            
+        elif 'shutdown' in query:
+            os.system("shutdown /s /t 1")
