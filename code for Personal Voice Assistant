@@ -1,6 +1,7 @@
 import pyttsx3 #pip install pyttsx3
 import speech_recognition as sr #pip install SpeechRecognition
-import datetime #inbuilt module in Python 
+import datetime #inbuilt module in Python
+from datetime import date #inbuilt module in Python
 import wikipedia #pip install wikipedia 
 import smtplib 
 import webbrowser as wb #inbuilt module in Python
@@ -14,10 +15,15 @@ import requests #inbuilt module in Python
 from urllib.request import urlopen 
 import wolframalpha #pip install wolframaplha
 
+pyautogui.alert('This is a Personal Voice Assistent.')
+pyautogui.confirm('Shall I proceed?')
+pyautogui.prompt('What is your name?')
+pyautogui.password('Enter password (text will be hidden)')
+
 engine = pyttsx3.init()
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[1].id)
-wolframalpha_app_id = 'X7UREK-JW2HUY2GRR'    #put here your unique wolframalpha id
+wolframalpha_app_id = 'X7UREK-JW2HUY2GRR' #put here your unique wolframalpha id
 
 def speak(audio):
     engine.say(audio)
@@ -25,17 +31,17 @@ def speak(audio):
     
 def time_():
     Time=datetime.datetime.now().strftime("%H:%M:%S") #for 24 hour clock
+    print("The current time is")
+    print(Time)
     speak("The current time is")
     speak(Time)
     
 def date_():
-    year=datetime.datetime.now().year
-    month=datetime.datetime.now().month
-    date=datetime.datetime.now().date
+    today = date.today()
+    print("The current date is")
+    print(today)
     speak("The current date is")
-    speak(date)
-    speak(month)
-    speak(year)
+    speak(today)
     
 def wishme():
     speak("Hello Ma'am!")
@@ -61,7 +67,7 @@ def wishme():
 def TakeCommand():
     r = sr.Recognizer()
     with sr.Microphone() as source:
-        print("Listing...")
+        print("Listening...")
         r.pause_threshold=1
         audio = r.listen(source)
         
@@ -81,13 +87,13 @@ def sendEmail(to,content):
     server.ehlo()
     server.starttls()
     #for this function you must enable low security in your gmail which you are going to use as sender.
-    server.login('username@gmail.com','SmitaAbhi@1289')
+    server.login('username@gmail.com','Password')
     server.sendermail('username@gmail.com',to,content)
     server.close()
     
 def screenshot():
     img = pyautogui.screenshot()
-    screenshotpath = r'C:\Users\abhis\OneDrive\Pictures\Screenshots.png' #use path location here
+    screenshotpath = r'C:\Users\abhis\OneDrive\Pictures\Screenshots.png'
     img.save(screenshotpath)
     speak("Done Ma'am!")
     
@@ -120,7 +126,7 @@ if __name__ == "__main__":
             date_()
 
         elif "weather" in query:
-            api_key="f2abee602b135a275aed73d4b7f3292d"  #use here your unique id
+            api_key="f2abee602b135a275aed73d4b7f3292d"
             base_url="https://api.openweathermap.org/data/2.5/weather?"
             speak("what is the city name")
             city_name=TakeCommand()
@@ -221,7 +227,7 @@ if __name__ == "__main__":
             
         elif 'word' in query:
             speak('Opening MS Word...')
-            ms_word = r'C:/Program Files/Microsoft Office/root/Office16/WINWORD.EXE'   #give here your location path
+            ms_word = r'C:/Program Files/Microsoft Office/root/Office16/WINWORD.EXE'
             os.startfile(ms_word)
             
         elif 'write a note' in query:
@@ -249,9 +255,13 @@ if __name__ == "__main__":
             screenshot()
 
         elif 'who are you' in query or 'what can you do' in query:
-            print('''I am Spell. I am a personal assistant. I am programmed to perform minor tasks like opening youtube,google chrome,whatsaap,my class, gmail and stackoverflow . Predict time,search wikipedia,predict weather in different cities, i can play music, get top headline news and you can ask me computational or geographical questions too!''')
+            print('''I am Spell. I am a personal assistant. I am programmed to perform minor tasks like opening youtube,google chrome,
+whatsaap,my class, gmail and stackoverflow. Predict time,search wikipedia,predict weather in different cities, i can play music,
+get top headline news and you can ask me computational or geographical questions too!''')
 
-            speak('''I am Spell. I am a personal assistant. I am programmed to perform minor tasks like opening youtube,google chrome,whatsaap, my class, gmail and stackoverflow . Predict time,search wikipedia,predict weather in different cities, i can play music, get top headline news and you can ask me computational or geographical questions too!''')
+            speak('''I am Spell. I am a personal assistant. I am programmed to perform minor tasks like opening youtube,google chrome,
+whatsaap, my class, gmail and stackoverflow. Predict time,search wikipedia,predict weather in different cities, i can play music,
+get top headline news and you can ask me computational or geographical questions too!''')
 
 
         elif "who made you" in query or "who created you" in query or "who discovered you" in query:
@@ -263,14 +273,14 @@ if __name__ == "__main__":
             speak("which type of song you want to listen? Audio song or Video song Ma'am!")
 
         elif 'audio song' in query:
-            music_dir = 'C:\\Users\\abhis\\OneDrive\\Desktop\\songs'  #put here your location path
+            music_dir = 'C:\\Users\\abhis\\OneDrive\\Desktop\\songs'
             songs = os.listdir(music_dir)
             print(songs)
             no = random.randint(1,10)
             os.startfile(os.path.join(music_dir,songs[no]))
             
         elif 'video song' in query:
-            songs_dir = r'C:\Users\abhis\Videos\Free YouTube Downloader'   #put here your location path
+            songs_dir = r'C:\Users\abhis\Videos\Free YouTube Downloader'
             music = os.listdir(songs_dir)
             speak('What should I play?')
             speak('Select a number...')
